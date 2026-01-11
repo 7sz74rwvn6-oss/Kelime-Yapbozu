@@ -5,11 +5,13 @@
 <title>Kelime Bulmaca</title>
 <style>
 body { margin:0; padding:0; font-family: Arial; background:#2c3e50; color:white; text-align:center; }
-#score { font-size:24px; margin-top:10px; }
+h1 { font-size:48px; margin-top:20px; }
+#score { font-size:32px; margin-top:10px; }
 #letters { display:flex; flex-wrap:wrap; justify-content:center; margin:20px; }
-.letter { width:50px; height:50px; background:#3498db; margin:5px; display:flex; justify-content:center; align-items:center; font-size:24px; border-radius:5px; user-select:none; touch-action: manipulation; }
-#selected { margin:20px; font-size:28px; min-height:40px; }
-#checkBtn { font-size:24px; padding:10px 20px; margin:10px; }
+.letter { width:60px; height:60px; background:#3498db; margin:5px; display:flex; justify-content:center; align-items:center; font-size:32px; border-radius:10px; user-select:none; touch-action: manipulation; cursor:pointer; }
+.letter.used { background:#95a5a6; cursor:not-allowed; }
+#selected { margin:20px; font-size:36px; min-height:50px; }
+#checkBtn { font-size:28px; padding:10px 20px; margin:10px; border-radius:10px; }
 </style>
 </head>
 <body>
@@ -24,6 +26,7 @@ body { margin:0; padding:0; font-family: Arial; background:#2c3e50; color:white;
 const words = ["ELMA","ARABA","KEDI","BILGISAYAR","FUTBOL"];
 let score = 0;
 let selectedWord = "";
+let selectedLetters = [];
 let correctWord = words[Math.floor(Math.random()*words.length)];
 
 const lettersDiv = document.getElementById("letters");
@@ -31,43 +34,45 @@ const selectedDiv = document.getElementById("selected");
 const scoreDiv = document.getElementById("score");
 const checkBtn = document.getElementById("checkBtn");
 
-// Harfleri karıştır
-const shuffled = correctWord.split("").sort(()=>Math.random()-0.5);
-shuffled.forEach(letter=>{
-  const div = document.createElement("div");
-  div.className="letter";
-  div.innerText=letter;
-  div.addEventListener("click", ()=>{
-    selectedWord+=letter;
-    selectedDiv.innerText=selectedWord;
+// Harfleri oluştur
+function createLetters() {
+  lettersDiv.innerHTML="";
+  selectedLetters=[];
+  const shuffled = correctWord.split("").sort(()=>Math.random()-0.5);
+  shuffled.forEach((letter, index)=>{
+    const div = document.createElement("div");
+    div.className="letter";
+    div.innerText=letter;
+    div.dataset.index=index;
+    div.addEventListener("click", ()=>{
+      if(div.classList.contains("used")) return;
+      selectedWord += letter;
+      selectedLetters.push(div.dataset.index);
+      div.classList.add("used");
+      selectedDiv.innerText = selectedWord;
+    });
+    lettersDiv.appendChild(div);
   });
-  lettersDiv.appendChild(div);
-});
+}
 
+// Kontrol
 checkBtn.addEventListener("click", ()=>{
   if(selectedWord === correctWord){
     score++;
-    alert("Doğru! Skor: "+score);
+    scoreDiv.innerText = "Skor: "+score;
+    alert("Doğru!");
   } else {
     alert("Yanlış! Doğru kelime: "+correctWord);
   }
   // Yeni kelime
   selectedWord="";
   selectedDiv.innerText="";
-  lettersDiv.innerHTML="";
   correctWord = words[Math.floor(Math.random()*words.length)];
-  const shuffled = correctWord.split("").sort(()=>Math.random()-0.5);
-  shuffled.forEach(letter=>{
-    const div = document.createElement("div");
-    div.className="letter";
-    div.innerText=letter;
-    div.addEventListener("click", ()=>{
-      selectedWord+=letter;
-      selectedDiv.innerText=selectedWord;
-    });
-    lettersDiv.appendChild(div);
-  });
+  createLetters();
 });
+
+// Başlangıç
+createLetters();
 </script>
 
 </body>
